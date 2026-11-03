@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>복습 퀴즈</title>
-  <meta name="description" content="강의 내용을 복습하는 객관식 퀴즈 10문제">
+  <title>바이브 코딩 복습 퀴즈</title>
+  <meta name="description" content="바이브 코딩 강의 복습 퀴즈 - 난이도(상·중·하)와 문제 유형(객관식·단답형)을 골라 풀어 보세요">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -16,6 +16,7 @@
       --muted: #4a4a4a;
       --primary: #1d4ed8;
       --primary-dark: #1e3a8a;
+      --primary-soft: #eff4ff;
       --border: #cfc8b8;
       --correct-bg: #dcfce7;
       --correct: #166534;
@@ -53,11 +54,7 @@
       gap: 12px;
       margin-bottom: 20px;
     }
-    .topbar h1 {
-      font-size: 1.4rem;
-      margin: 0;
-      font-weight: 900;
-    }
+    .topbar h1 { font-size: 1.4rem; margin: 0; font-weight: 900; }
     .size-controls { display: flex; gap: 8px; align-items: center; }
     .size-controls span { font-size: 0.8rem; color: var(--muted); }
     .size-btn {
@@ -80,12 +77,48 @@
       box-shadow: 0 4px 0 rgba(0,0,0,0.06);
     }
 
+    /* 시작 화면: 난이도·유형 선택 */
+    .setting { margin-top: 24px; text-align: left; }
+    .setting h3 { font-size: 1.15rem; margin: 0 0 10px; }
+    .choice-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .choice {
+      min-height: 84px;
+      padding: 10px 8px;
+      font: inherit;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text);
+      background: #fff;
+      border: 3px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      line-height: 1.3;
+    }
+    .choice small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
+    .choice[aria-pressed="true"] {
+      background: var(--primary);
+      border-color: var(--primary-dark);
+      color: #fff;
+    }
+    .choice[aria-pressed="true"] small { color: #dbe4ff; }
+
     /* 진행 표시 */
     .progress-text {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px 12px;
       font-size: 1rem;
       font-weight: 700;
       color: var(--primary-dark);
       margin-bottom: 8px;
+    }
+    .badge {
+      font-size: 0.8rem;
+      padding: 2px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      border: 2px solid var(--primary);
     }
     .progress-bar {
       height: 16px;
@@ -94,21 +127,12 @@
       overflow: hidden;
       margin-bottom: 24px;
     }
-    .progress-fill {
-      height: 100%;
-      background: var(--primary);
-      width: 0;
-      transition: width 0.4s;
-    }
+    .progress-fill { height: 100%; background: var(--primary); width: 0; transition: width 0.4s; }
 
-    .question {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin: 0 0 24px;
-    }
+    .question { font-size: 1.3rem; font-weight: 700; margin: 0 0 24px; }
 
+    /* 객관식 보기 */
     .options { display: grid; gap: 14px; }
-
     .option {
       display: flex;
       align-items: center;
@@ -126,8 +150,10 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
     }
-    .option:hover:not(:disabled) { border-color: var(--primary); background: #eff4ff; }
-    .option:focus-visible, .btn:focus-visible, .size-btn:focus-visible {
+    .option:hover:not(:disabled), .choice:hover { border-color: var(--primary); }
+    .option:hover:not(:disabled) { background: var(--primary-soft); }
+    .option:focus-visible, .btn:focus-visible, .size-btn:focus-visible,
+    .choice:focus-visible, .answer-input:focus-visible {
       outline: 4px solid var(--focus);
       outline-offset: 3px;
     }
@@ -144,7 +170,35 @@
     .option.correct .num { background: var(--correct); color: #fff; }
     .option.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
     .option.wrong .num { background: var(--wrong); color: #fff; }
-    .option.dim { opacity: 0.55; }
+    .option.dim { opacity: 0.6; }
+
+    /* 단답형 입력 */
+    .short-box label { display: block; font-weight: 700; margin-bottom: 8px; }
+    .answer-input {
+      width: 100%;
+      min-height: 72px;
+      padding: 12px 18px;
+      font: inherit;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border: 3px solid var(--border);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--text);
+    }
+    .answer-input:focus { border-color: var(--primary); outline: none; }
+    .answer-input.correct { background: var(--correct-bg); border-color: var(--correct); }
+    .answer-input.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+    .short-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .short-actions .btn { margin-top: 0; min-height: 64px; font-size: 1rem; }
+    .hint {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fff8e1;
+      border: 2px dashed var(--focus);
+      border-radius: 12px;
+      font-weight: 700;
+    }
 
     /* 정답/오답 안내 */
     .feedback {
@@ -181,18 +235,14 @@
     }
     .btn:hover { background: var(--primary-dark); }
     .btn.secondary { background: #fff; color: var(--primary-dark); border: 3px solid var(--primary); }
+    .btn.secondary:hover { background: var(--primary-soft); }
     .hidden { display: none !important; }
 
     /* 시작/결과 화면 */
     .center { text-align: center; }
     .big-emoji { font-size: 4rem; line-height: 1.2; }
-    .intro p { font-size: 1.1rem; }
-    .score {
-      font-size: 2.6rem;
-      font-weight: 900;
-      color: var(--primary-dark);
-      margin: 8px 0;
-    }
+    .intro p { font-size: 1.05rem; margin: 8px 0; }
+    .score { font-size: 2.6rem; font-weight: 900; color: var(--primary-dark); margin: 8px 0; }
     .result-msg { font-size: 1.25rem; font-weight: 700; }
 
     .review { margin-top: 28px; text-align: left; }
@@ -216,9 +266,7 @@
       animation: fall 1.6s linear forwards;
       z-index: 10;
     }
-    @keyframes fall {
-      to { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
-    }
+    @keyframes fall { to { transform: translateY(105vh) rotate(360deg); opacity: 0.2; } }
     @media (prefers-reduced-motion: reduce) {
       .confetti { display: none; }
       .feedback.show { animation: none; }
@@ -228,13 +276,14 @@
       html { font-size: calc(19px * var(--scale)); }
       .card { padding: 22px 16px; }
       .option { gap: 12px; padding: 12px 14px; }
+      .choice-group { gap: 8px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <h1>📚 복습 퀴즈</h1>
+      <h1>💻 바이브 코딩 복습 퀴즈</h1>
       <div class="size-controls" aria-label="글자 크기 조절">
         <span>글자 크기</span>
         <button class="size-btn" id="smaller" aria-label="글자 작게">가−</button>
@@ -245,19 +294,55 @@
     <!-- 시작 화면 -->
     <section class="card center intro" id="startScreen">
       <div class="big-emoji">✏️</div>
-      <h2 style="font-size:1.4rem;margin:8px 0 12px">오늘 배운 내용을 복습해 볼까요?</h2>
-      <p>객관식 문제 <strong id="totalCount">10</strong>개가 나옵니다.<br>
-         보기 중 정답이라고 생각하는 것을 <strong>눌러 주세요.</strong></p>
-      <p style="color:var(--muted)">틀려도 괜찮아요. 해설을 보며 다시 익히면 됩니다 😊</p>
+      <h2 style="font-size:1.4rem;margin:8px 0 8px">바이브 코딩, 얼마나 기억하고 계신가요?</h2>
+      <p>난이도와 문제 유형을 고른 뒤<br><strong>퀴즈 시작하기</strong>를 눌러 주세요.</p>
+
+      <div class="setting">
+        <h3>① 난이도를 골라 주세요</h3>
+        <div class="choice-group" id="levelGroup" role="group" aria-label="난이도">
+          <button class="choice" data-value="하" aria-pressed="true">하<small>쉬워요</small></button>
+          <button class="choice" data-value="중" aria-pressed="false">중<small>보통이에요</small></button>
+          <button class="choice" data-value="상" aria-pressed="false">상<small>어려워요</small></button>
+        </div>
+      </div>
+
+      <div class="setting">
+        <h3>② 문제 유형을 골라 주세요</h3>
+        <div class="choice-group" id="typeGroup" role="group" aria-label="문제 유형">
+          <button class="choice" data-value="mc" aria-pressed="true">객관식<small>보기 고르기</small></button>
+          <button class="choice" data-value="short" aria-pressed="false">단답형<small>직접 쓰기</small></button>
+          <button class="choice" data-value="mix" aria-pressed="false">섞어서<small>둘 다</small></button>
+        </div>
+      </div>
+
+      <p style="color:var(--muted);margin-top:20px">틀려도 괜찮아요. 해설을 보며 다시 익히면 됩니다 😊</p>
       <button class="btn" id="startBtn">퀴즈 시작하기</button>
     </section>
 
     <!-- 문제 화면 -->
     <section class="card hidden" id="quizScreen" aria-live="polite">
-      <div class="progress-text" id="progressText"></div>
+      <div class="progress-text">
+        <span id="progressText"></span>
+        <span class="badge" id="modeBadge"></span>
+      </div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       <p class="question" id="questionText"></p>
+
+      <!-- 객관식 -->
       <div class="options" id="options"></div>
+
+      <!-- 단답형 -->
+      <div class="short-box hidden" id="shortBox">
+        <label for="answerInput">✍️ 정답을 적어 주세요</label>
+        <input class="answer-input" id="answerInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="여기에 입력">
+        <div class="hint hidden" id="hintBox"></div>
+        <button class="btn" id="submitBtn">정답 확인</button>
+        <div class="short-actions">
+          <button class="btn secondary" id="hintBtn">💡 힌트 보기</button>
+          <button class="btn secondary" id="giveUpBtn">🙋 모르겠어요</button>
+        </div>
+      </div>
+
       <div class="feedback" id="feedback" role="status"></div>
       <button class="btn hidden" id="nextBtn">다음 문제 ▶</button>
     </section>
@@ -265,121 +350,242 @@
     <!-- 결과 화면 -->
     <section class="card center hidden" id="resultScreen">
       <div class="big-emoji" id="resultEmoji">🏆</div>
+      <div class="badge" id="resultBadge" style="display:inline-block"></div>
       <div class="score" id="scoreText"></div>
       <p class="result-msg" id="resultMsg"></p>
       <div class="review" id="review"></div>
-      <button class="btn" id="retryBtn">처음부터 다시 풀기</button>
+      <button class="btn" id="retryBtn">같은 설정으로 다시 풀기</button>
+      <button class="btn secondary" id="homeBtn">난이도·유형 다시 고르기</button>
     </section>
   </div>
 
   <script>
     /* ================================================================
        ✍️ 문제를 바꾸고 싶으면 이 부분만 고치면 됩니다.
-       - q       : 문제
-       - options : 보기 4개
-       - answer  : 정답 보기 번호 (첫 번째 보기가 1)
-       - explain : 해설 (정답/오답 후에 보여 줌)
+       - level   : 난이도 ("하", "중", "상") — 난이도마다 10문제씩
+       - q       : 문제 (객관식·단답형 모두 같은 문제를 씁니다)
+       - options : 객관식 보기 4개 — ⭐ 첫 번째에 정답을 적으세요.
+                   (화면에서는 보기 순서가 자동으로 섞여서 나옵니다)
+       - answers : 단답형에서 정답으로 인정할 말들
+                   (띄어쓰기·대소문자·마침표는 무시하고 채점합니다.
+                    첫 번째 말이 '정답'으로 화면에 보입니다)
+       - explain : 해설
        ================================================================ */
     const QUESTIONS = [
+      /* ---------------------- 난이도: 하 ---------------------- */
       {
-        q: "ChatGPT, Claude 같은 '생성형 AI'가 하는 일로 가장 알맞은 것은?",
-        options: [
-          "인터넷 속도를 빠르게 해 준다",
-          "질문에 맞춰 글·그림 같은 새 결과물을 만들어 준다",
-          "컴퓨터 바이러스를 자동으로 지운다",
-          "휴대폰 배터리를 오래 가게 한다"
-        ],
-        answer: 2,
-        explain: "생성형 AI는 이름 그대로 글, 그림, 요약 같은 새로운 결과물을 '생성'해 주는 AI입니다."
+        level: "하",
+        q: "원하는 것을 말(글)로 설명하면 AI가 코드를 대신 작성해 주는 개발 방식을 무엇이라고 할까요?",
+        options: ["바이브 코딩", "블록 코딩", "하드 코딩", "손 코딩"],
+        answers: ["바이브 코딩", "바이브코딩", "vibe coding", "바이브"],
+        explain: "바이브 코딩은 '이런 걸 만들어 줘'라고 말하면 AI가 코드를 짜 주는 방식입니다. 목수에게 '이런 의자를 만들어 주세요'라고 주문하는 것과 비슷해요."
       },
       {
+        level: "하",
         q: "AI에게 일을 시킬 때 입력하는 '지시문'을 무엇이라고 부를까요?",
         options: ["프롬프트", "다운로드", "업데이트", "로그아웃"],
-        answer: 1,
-        explain: "AI에게 건네는 요청 문장을 '프롬프트'라고 합니다. 식당에서 주문서를 쓰는 것과 비슷해요."
+        answers: ["프롬프트", "prompt"],
+        explain: "AI에게 건네는 요청 문장이 '프롬프트'입니다. 식당의 주문서처럼, 자세히 쓸수록 원하는 결과가 나와요."
       },
       {
-        q: "AI에게서 더 좋은 답을 얻는 방법으로 가장 알맞은 것은?",
-        options: [
-          "한 단어만 짧게 입력한다",
-          "목적·대상·원하는 형식을 구체적으로 알려 준다",
-          "같은 질문을 아주 빠르게 여러 번 입력한다",
-          "일부러 맞춤법을 틀리게 쓴다"
-        ],
-        answer: 2,
-        explain: "'누구에게, 무엇을, 어떤 모양으로' 원하는지 구체적으로 말할수록 AI의 답이 좋아집니다."
+        level: "하",
+        q: "웹페이지의 '뼈대'(제목, 글, 버튼 같은 내용과 구조)를 만드는 언어는 무엇일까요?",
+        options: ["HTML", "엑셀", "PDF", "MP3"],
+        answers: ["HTML", "에이치티엠엘"],
+        explain: "HTML은 집으로 치면 기둥과 벽 같은 뼈대입니다. 이번 퀴즈 앱도 index.html 파일 하나로 만들어졌어요."
       },
       {
-        q: "AI가 사실이 아닌 내용을 그럴듯하게 지어내는 현상을 무엇이라고 할까요?",
-        options: ["버퍼링", "할루시네이션(환각)", "백업", "스트리밍"],
-        answer: 2,
-        explain: "AI가 모르는 것을 아는 척 지어내는 것을 '할루시네이션'이라고 합니다. 중요한 내용은 꼭 확인하세요."
+        level: "하",
+        q: "웹페이지의 색깔, 글꼴, 배치처럼 '꾸미는 일'을 담당하는 언어는 무엇일까요?",
+        options: ["CSS", "HTML", "PDF", "ZIP"],
+        answers: ["CSS", "씨에스에스"],
+        explain: "CSS는 집의 벽지와 페인트, 인테리어에 해당합니다. 같은 뼈대(HTML)라도 CSS에 따라 전혀 다르게 보여요."
       },
       {
-        q: "AI가 알려 준 건강·법률·돈 관련 정보는 어떻게 하는 것이 좋을까요?",
-        options: [
-          "AI가 말했으니 그대로 믿는다",
-          "공식 기관이나 전문가를 통해 한 번 더 확인한다",
-          "친구에게 바로 전달한다",
-          "무조건 무시한다"
-        ],
-        answer: 2,
-        explain: "AI는 똑똑한 비서지만 틀릴 수 있어요. 중요한 결정은 공식 자료나 전문가로 꼭 확인합니다."
+        level: "하",
+        q: "버튼을 누르면 반응하는 것처럼, 웹페이지가 '움직이게' 만드는 언어는 무엇일까요?",
+        options: ["자바스크립트", "CSS", "워드", "한글"],
+        answers: ["자바스크립트", "javascript", "js", "자바 스크립트"],
+        explain: "자바스크립트는 집의 전기 배선과 스위치 같은 역할입니다. 누르면 불이 켜지듯, 클릭하면 무언가 일어나게 해요."
       },
       {
-        q: "AI에게 입력하면 안 되는 정보는 무엇일까요?",
-        options: [
-          "오늘 날씨에 대한 질문",
-          "좋아하는 음식 레시피 질문",
-          "주민등록번호·계좌 비밀번호",
-          "여행지 추천 요청"
-        ],
-        answer: 3,
-        explain: "주민등록번호, 비밀번호, 계좌번호 같은 개인정보는 AI에 입력하지 않는 것이 안전합니다."
+        level: "하",
+        q: "프로그램이 의도와 다르게 동작하는 '오류'를 흔히 무엇이라고 부를까요?",
+        options: ["버그", "백업", "부팅", "버퍼"],
+        answers: ["버그", "bug"],
+        explain: "버그(bug)는 '벌레'라는 뜻으로, 프로그램 속 오류를 말합니다. 옛날 컴퓨터에 실제 나방이 끼어 고장 난 일화에서 유명해졌어요."
       },
       {
-        q: "AI의 첫 답변이 마음에 들지 않을 때 가장 좋은 방법은?",
-        options: [
-          "프로그램을 지우고 다시 설치한다",
-          "\"더 쉽게\", \"3줄로 줄여 줘\"처럼 고쳐 달라고 다시 요청한다",
-          "컴퓨터를 껐다 켠다",
-          "AI는 원래 안 된다고 포기한다"
-        ],
-        answer: 2,
-        explain: "AI와는 대화하듯 주고받을 수 있어요. 원하는 방향을 말하면 답을 계속 다듬어 줍니다."
+        level: "하",
+        q: "프로그램 속 오류(버그)를 찾아서 고치는 일을 무엇이라고 할까요?",
+        options: ["디버깅", "코딩 테스트", "다운로드", "로그인"],
+        answers: ["디버깅", "debugging", "디버그", "debug"],
+        explain: "디버깅은 '벌레(버그)를 잡는다'는 뜻입니다. 바이브 코딩에서는 오류 메시지를 AI에게 그대로 보여 주면 함께 고쳐 줘요."
       },
       {
-        q: "'바이브 코딩'에 대한 설명으로 가장 알맞은 것은?",
-        options: [
-          "음악을 들으면서 타자 연습을 하는 것",
-          "원하는 것을 말로 설명하면 AI가 코드를 대신 작성해 주는 방식",
-          "휴대폰 진동(바이브) 설정을 바꾸는 것",
-          "종이에 손으로 코드를 적는 것"
-        ],
-        answer: 2,
-        explain: "바이브 코딩은 '이런 걸 만들어 줘'라고 말로 설명하면 AI가 코드를 짜 주는 새로운 개발 방식입니다."
+        level: "하",
+        q: "AI가 사실이 아닌 내용을 진짜처럼 그럴듯하게 지어내는 현상을 무엇이라고 할까요?",
+        options: ["할루시네이션", "스트리밍", "백업", "버퍼링"],
+        answers: ["할루시네이션", "환각", "hallucination", "할루시네이션(환각)"],
+        explain: "AI가 모르는 것을 아는 척 지어내는 것을 '할루시네이션(환각)'이라고 합니다. AI가 만든 코드도 꼭 실행해 보고 확인해야 해요."
       },
       {
-        q: "AI에게 '역할'을 정해 주는 예시로 알맞은 것은?",
-        options: [
-          "\"너는 친절한 초등학교 선생님이야. 아이에게 설명하듯 알려 줘.\"",
-          "\"빨리\"",
-          "\"ㅋㅋㅋ\"",
-          "\"아무거나\""
-        ],
-        answer: 1,
-        explain: "\"너는 ○○ 전문가야\"처럼 역할을 정해 주면 AI가 그 사람의 말투와 수준에 맞춰 답해 줍니다."
+        level: "하",
+        q: "내가 만든 웹사이트를 인터넷에 올려 다른 사람도 볼 수 있게 하는 것을 무엇이라고 할까요?",
+        options: ["배포", "삭제", "압축", "인쇄"],
+        answers: ["배포", "deploy", "디플로이", "배포하기"],
+        explain: "배포(deploy)는 완성한 요리를 손님 식탁에 내놓는 것과 같습니다. 배포해야 다른 사람이 주소로 들어와 볼 수 있어요."
       },
       {
-        q: "AI가 만든 글이나 그림을 사용할 때의 올바른 태도는?",
-        options: [
-          "내가 직접 만든 것이라고 말한다",
-          "내용을 확인하고, 필요하면 AI를 활용했다고 밝힌다",
-          "확인 없이 바로 인터넷에 올린다",
-          "다른 사람의 이름을 붙인다"
-        ],
-        answer: 2,
-        explain: "AI 결과물은 내용을 꼭 확인하고, 필요한 경우 AI 도움을 받았다고 밝히는 것이 바른 사용법입니다."
+        level: "하",
+        q: "Anthropic이 만든 AI 코딩 도구로, 말로 지시하면 직접 파일을 만들고 고쳐 주는 도구의 이름은?",
+        options: ["Claude Code", "Claude Paint", "Claude Music", "Claude Mail"],
+        answers: ["Claude Code", "클로드 코드", "클로드코드", "claudecode"],
+        explain: "Claude Code는 대화로 지시하면 코드를 읽고, 만들고, 고쳐 주는 AI 코딩 도우미입니다. 바이브 코딩의 대표 도구예요."
+      },
+
+      /* ---------------------- 난이도: 중 ---------------------- */
+      {
+        level: "중",
+        q: "2025년 초 '바이브 코딩(vibe coding)'이라는 말을 처음 소개해 널리 알린 AI 연구자는 누구일까요?",
+        options: ["안드레이 카파시", "빌 게이츠", "스티브 잡스", "일론 머스크"],
+        answers: ["안드레이 카파시", "카파시", "karpathy", "andrej karpathy", "안드레 카파시", "카르파시"],
+        explain: "OpenAI 공동 창업자이자 테슬라 AI 책임자였던 안드레이 카파시가 2025년 2월에 처음 쓴 표현입니다."
+      },
+      {
+        level: "중",
+        q: "파일이 언제, 어떻게 바뀌었는지 기록을 남겨 관리해 주는 '버전 관리 도구'는 무엇일까요?",
+        options: ["Git (깃)", "Zoom (줌)", "Excel (엑셀)", "Chrome (크롬)"],
+        answers: ["Git", "깃", "기트"],
+        explain: "Git은 게임의 '세이브 포인트'처럼 작업 단계마다 기록을 남겨, 언제든 예전 상태로 돌아갈 수 있게 해 줍니다."
+      },
+      {
+        level: "중",
+        q: "Git으로 관리하는 코드를 인터넷에 저장하고 다른 사람과 공유하는 대표적인 온라인 서비스는?",
+        options: ["GitHub (깃허브)", "YouTube (유튜브)", "Netflix (넷플릭스)", "Instagram (인스타그램)"],
+        answers: ["GitHub", "깃허브", "깃헙", "기트허브"],
+        explain: "GitHub는 코드를 보관하는 온라인 창고입니다. Git이 '세이브 기능'이라면, GitHub는 그 세이브 파일을 올려 두는 클라우드예요."
+      },
+      {
+        level: "중",
+        q: "지금까지의 변경 내용을 하나의 '저장 지점'으로 기록하는 Git 동작을 무엇이라고 할까요?",
+        options: ["커밋 (commit)", "로그아웃 (logout)", "포맷 (format)", "캡처 (capture)"],
+        answers: ["커밋", "commit"],
+        explain: "커밋은 '여기까지 저장!'하고 사진을 한 장 찍어 두는 것과 같습니다. 문제가 생기면 그 사진 시점으로 돌아갈 수 있어요."
+      },
+      {
+        level: "중",
+        q: "원본(main)을 건드리지 않고, 따로 갈라져 나와 새 기능을 작업하는 '작업 갈래'를 무엇이라고 할까요?",
+        options: ["브랜치 (branch)", "폴더 (folder)", "탭 (tab)", "링크 (link)"],
+        answers: ["브랜치", "branch", "가지"],
+        explain: "브랜치는 나뭇가지처럼 갈라진 작업 공간입니다. 원본은 그대로 두고 마음껏 실험한 뒤, 잘 되면 합치면 돼요."
+      },
+      {
+        level: "중",
+        q: "내 작업 브랜치의 변경 내용을 main에 합쳐 달라고 요청하는 것을 무엇이라고 할까요? (영어 약자로도 불러요)",
+        options: ["풀 리퀘스트 (PR)", "핫스팟 (HS)", "다운로드 (DL)", "로그인 (LI)"],
+        answers: ["풀 리퀘스트", "PR", "pull request", "풀리퀘", "풀리퀘스트"],
+        explain: "풀 리퀘스트(PR)는 '제 작업을 검토하고 합쳐 주세요'라는 요청서입니다. 이 퀴즈 앱도 PR로 main에 합쳐졌어요."
+      },
+      {
+        level: "중",
+        q: "GitHub에서 HTML 파일을 무료로 웹사이트처럼 공개(배포)해 주는 기능의 이름은?",
+        options: ["GitHub Pages", "GitHub Music", "GitHub Mail", "GitHub Photo"],
+        answers: ["GitHub Pages", "깃허브 페이지", "깃허브 페이지스", "깃허브페이지", "pages", "페이지스"],
+        explain: "GitHub Pages를 켜면 저장소의 index.html이 '아이디.github.io/저장소이름' 주소로 누구나 볼 수 있게 됩니다."
+      },
+      {
+        level: "중",
+        q: "웹사이트 주소로 들어갔을 때 가장 먼저 열리는 '첫 페이지' 파일의 기본 이름은?",
+        options: ["index.html", "start.txt", "home.pdf", "main.hwp"],
+        answers: ["index.html", "index", "인덱스", "인덱스.html"],
+        explain: "웹 서버는 주소 뒤에 파일 이름이 없으면 index.html을 먼저 찾아 보여 줍니다. 책의 '표지'와 같은 파일이에요."
+      },
+      {
+        level: "중",
+        q: "화면이 이상하게 보일 때, AI에게 '눈으로 보여 주기' 위해 화면을 그대로 찍은 이미지를 무엇이라고 할까요?",
+        options: ["스크린샷", "스크린세이버", "스크롤", "스피커"],
+        answers: ["스크린샷", "screenshot", "캡처", "화면 캡처", "화면캡쳐", "캡쳐", "스샷"],
+        explain: "말로 설명하기 어려운 화면 문제는 스크린샷 한 장이 훨씬 정확합니다. '백 마디 말보다 사진 한 장'이에요."
+      },
+      {
+        level: "중",
+        q: "Claude Code가 작업할 때마다 자동으로 읽는 '프로젝트 안내서' 파일의 이름은?",
+        options: ["CLAUDE.md", "README.exe", "AI.zip", "NOTE.mp4"],
+        answers: ["CLAUDE.md", "claude md", "클로드md", "클로드.md", "클로드 엠디"],
+        explain: "CLAUDE.md에 프로젝트 규칙과 정보를 적어 두면, 새 직원에게 주는 '업무 매뉴얼'처럼 AI가 매번 읽고 그대로 따릅니다."
+      },
+
+      /* ---------------------- 난이도: 상 ---------------------- */
+      {
+        level: "상",
+        q: "AI가 한 번에 기억하고 참고할 수 있는 대화·자료의 최대 분량을 무엇이라고 할까요?",
+        options: ["컨텍스트 윈도우", "브라우저 윈도우", "팝업 윈도우", "윈도우 업데이트"],
+        answers: ["컨텍스트 윈도우", "컨텍스트", "context window", "context", "문맥 창", "콘텍스트 윈도우"],
+        explain: "컨텍스트 윈도우는 AI의 '책상 넓이'와 같습니다. 책상이 꽉 차면 오래된 자료부터 치워야 해서, 긴 대화에선 앞 내용을 잊을 수 있어요."
+      },
+      {
+        level: "상",
+        q: "서로 다른 프로그램이나 서비스가 데이터를 주고받기 위해 미리 약속해 둔 '창구'를 무엇이라고 할까요?",
+        options: ["API", "USB", "PDF", "GPS"],
+        answers: ["API", "에이피아이"],
+        explain: "API는 식당의 '주문 창구'입니다. 주방(서비스) 안을 몰라도, 정해진 방식으로 주문하면 음식(데이터)이 나와요."
+      },
+      {
+        level: "상",
+        q: "외부 AI·서비스를 쓸 때 비밀번호처럼 쓰여서, 코드에 그대로 적거나 공개 저장소에 올리면 안 되는 것은?",
+        options: ["API 키", "파일 이름", "웹페이지 제목", "글꼴 이름"],
+        answers: ["API 키", "API key", "에이피아이 키", "키", "api키"],
+        explain: "API 키가 공개되면 다른 사람이 내 이름으로 서비스를 쓰고, 요금이 나에게 청구될 수 있어요. 집 열쇠를 대문에 붙여 두는 것과 같습니다."
+      },
+      {
+        level: "상",
+        q: "Claude 같은 AI를 외부 도구·데이터(구글 드라이브, 깃허브 등)에 연결하는 표준 규약을 영어 약자로 무엇이라고 할까요?",
+        options: ["MCP", "HTTP", "PDF", "LTE"],
+        answers: ["MCP", "Model Context Protocol", "모델 컨텍스트 프로토콜", "엠씨피"],
+        explain: "MCP(Model Context Protocol)는 AI용 'USB 포트' 같은 약속입니다. 규격만 맞으면 여러 도구를 AI에 꽂아 쓸 수 있어요."
+      },
+      {
+        level: "상",
+        q: "Claude Code에서 코드를 바로 고치지 않고, 먼저 작업 계획을 세워 보여 주고 승인을 받게 하는 모드는?",
+        options: ["플랜 모드 (Plan mode)", "게임 모드 (Game mode)", "비행기 모드 (Airplane mode)", "절전 모드 (Sleep mode)"],
+        answers: ["플랜 모드", "plan mode", "플랜", "계획 모드", "plan"],
+        explain: "플랜 모드는 공사 전에 '설계도'부터 확인하는 단계입니다. 큰 작업일수록 계획을 먼저 보고 방향을 잡으면 실수가 줄어요."
+      },
+      {
+        level: "상",
+        q: "코드가 의도대로 동작하는지 자동으로 확인하기 위해 따로 만들어 두는 검사용 코드를 무엇이라고 할까요?",
+        options: ["테스트 코드", "광고 코드", "QR 코드", "우편 번호"],
+        answers: ["테스트 코드", "테스트", "test", "test code", "테스트코드"],
+        explain: "테스트 코드는 자동 '검수원'입니다. AI가 코드를 바꿀 때마다 돌려 보면, 예전에 잘 되던 기능이 망가졌는지 바로 알 수 있어요."
+      },
+      {
+        level: "상",
+        q: "새로 바꾼 코드가 문제를 일으켜, 이전의 정상 버전으로 되돌리는 것을 무엇이라고 할까요?",
+        options: ["롤백", "업로드", "리프레시", "로그인"],
+        answers: ["롤백", "rollback", "되돌리기", "리버트", "revert", "복원"],
+        explain: "롤백은 게임에서 '마지막 세이브 지점에서 다시 시작'하는 것과 같습니다. 커밋을 자주 해 두면 롤백이 쉬워져요."
+      },
+      {
+        level: "상",
+        q: "사용자 눈에 보이지 않는 서버·데이터 저장 같은 '뒤편' 처리를 맡는 부분을 무엇이라고 할까요?",
+        options: ["백엔드", "프론트엔드", "레이아웃", "아이콘"],
+        answers: ["백엔드", "backend", "back-end", "백앤드", "서버"],
+        explain: "식당으로 치면 손님이 보는 홀은 '프론트엔드', 보이지 않는 주방은 '백엔드'입니다."
+      },
+      {
+        level: "상",
+        q: "회원 정보·게시글처럼 많은 데이터를 체계적으로 저장하고 꺼내 쓸 수 있게 만든 저장소는?",
+        options: ["데이터베이스", "바탕화면", "휴지통", "클립보드"],
+        answers: ["데이터베이스", "DB", "디비", "database", "데이타베이스"],
+        explain: "데이터베이스(DB)는 잘 정리된 '도서관 서고'입니다. 책(데이터)이 많아도 번호로 금방 찾아 꺼낼 수 있어요."
+      },
+      {
+        level: "상",
+        q: "PC·태블릿·휴대폰 등 화면 크기에 맞춰 배치가 자동으로 바뀌도록 만든 웹 디자인을 무엇이라고 할까요?",
+        options: ["반응형 디자인", "고정형 디자인", "인쇄용 디자인", "평면 디자인"],
+        answers: ["반응형", "반응형 디자인", "반응형 웹", "반응형 웹디자인", "responsive", "responsive design", "반응형웹디자인"],
+        explain: "반응형 디자인은 물처럼 그릇 모양에 맞춰 바뀌는 화면입니다. 이 퀴즈 앱도 휴대폰에서 보기 좋게 반응형으로 만들었어요."
       }
     ];
 
@@ -403,13 +609,28 @@
 
     /* ===================== 아래는 동작 코드 ===================== */
     const $ = (id) => document.getElementById(id);
+    const TYPE_NAMES = { mc: "객관식", short: "단답형", mix: "섞어서" };
+
+    let settings = { level: "하", type: "mc" };
+    let quiz = [];        // 이번에 풀 문제 목록 [{item, mode, options}]
     let current = 0;
     let score = 0;
     let wrongList = [];
-
-    $("totalCount").textContent = QUESTIONS.length;
+    let answered = false;
 
     function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    // 채점용: 띄어쓰기·대소문자·기호를 무시
+    function normalize(s) {
+      return String(s).toLowerCase().replace(/[\s.\-_·()\[\]'"`~!?,]/g, "");
+    }
 
     function show(screen) {
       ["startScreen", "quizScreen", "resultScreen"].forEach((id) =>
@@ -418,28 +639,70 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // 시작 화면의 선택 버튼(난이도·유형)
+    function setupChoiceGroup(groupId, key) {
+      const buttons = $(groupId).querySelectorAll(".choice");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+          settings[key] = btn.dataset.value;
+        });
+      });
+    }
+
     function startQuiz() {
+      const pool = shuffle(QUESTIONS.filter((x) => x.level === settings.level));
+      // '섞어서'는 객관식·단답형이 반반 나오도록
+      const modes = pool.map((_, i) =>
+        settings.type === "mix" ? (i % 2 === 0 ? "mc" : "short") : settings.type
+      );
+      const mixedModes = settings.type === "mix" ? shuffle(modes) : modes;
+      quiz = pool.map((item, i) => ({
+        item,
+        mode: mixedModes[i],
+        options: shuffle(item.options)
+      }));
       current = 0; score = 0; wrongList = [];
+      $("modeBadge").textContent = `난이도 ${settings.level} · ${TYPE_NAMES[settings.type]}`;
       show("quizScreen");
       renderQuestion();
     }
 
     function renderQuestion() {
-      const item = QUESTIONS[current];
-      $("progressText").textContent = `${current + 1}번 문제 / 전체 ${QUESTIONS.length}문제`;
-      $("progressFill").style.width = `${(current / QUESTIONS.length) * 100}%`;
+      const { item, mode, options } = quiz[current];
+      answered = false;
+      $("progressText").textContent = `${current + 1}번 문제 / 전체 ${quiz.length}문제`;
+      $("progressFill").style.width = `${(current / quiz.length) * 100}%`;
       $("questionText").textContent = `Q${current + 1}. ${item.q}`;
 
       const box = $("options");
       box.innerHTML = "";
-      item.options.forEach((text, i) => {
-        const btn = document.createElement("button");
-        btn.className = "option";
-        btn.innerHTML = `<span class="num">${i + 1}</span><span></span>`;
-        btn.lastChild.textContent = text;
-        btn.addEventListener("click", () => choose(i + 1, btn));
-        box.appendChild(btn);
-      });
+      box.classList.toggle("hidden", mode !== "mc");
+      $("shortBox").classList.toggle("hidden", mode !== "short");
+
+      if (mode === "mc") {
+        options.forEach((text, i) => {
+          const btn = document.createElement("button");
+          btn.className = "option";
+          btn.innerHTML = `<span class="num">${i + 1}</span><span></span>`;
+          btn.lastChild.textContent = text;
+          btn.addEventListener("click", () => chooseOption(text, btn));
+          box.appendChild(btn);
+        });
+      } else {
+        const input = $("answerInput");
+        input.value = "";
+        input.className = "answer-input";
+        input.disabled = false;
+        $("hintBox").classList.add("hidden");
+        ["submitBtn", "hintBtn", "giveUpBtn"].forEach((id) => {
+          $(id).disabled = false;
+          $(id).classList.remove("hidden");
+        });
+        $("hintBtn").parentElement.classList.remove("hidden");
+        setTimeout(() => input.focus({ preventScroll: true }), 50);
+      }
 
       const fb = $("feedback");
       fb.className = "feedback";
@@ -447,28 +710,66 @@
       $("nextBtn").classList.add("hidden");
     }
 
-    function choose(choice, clicked) {
-      const item = QUESTIONS[current];
+    // 객관식 채점
+    function chooseOption(text, clicked) {
+      if (answered) return;
+      const { item } = quiz[current];
+      const correctText = item.options[0];
       const buttons = [...$("options").children];
+      let correctNum = 0;
       buttons.forEach((b, i) => {
         b.disabled = true;
-        if (i + 1 === item.answer) b.classList.add("correct");
+        if (b.lastChild.textContent === correctText) { b.classList.add("correct"); correctNum = i + 1; }
         else if (b !== clicked) b.classList.add("dim");
       });
+      const ok = text === correctText;
+      if (!ok) clicked.classList.add("wrong");
+      finish(ok, `정답은 <strong>${correctNum}번</strong> 입니다.`);
+    }
 
+    // 단답형 채점
+    function submitShort(giveUp) {
+      if (answered) return;
+      const { item } = quiz[current];
+      const input = $("answerInput");
+      const value = input.value.trim();
+      if (!giveUp && !value) {
+        input.focus();
+        input.placeholder = "정답을 먼저 적어 주세요";
+        return;
+      }
+      const ok = !giveUp && item.answers.some((a) => normalize(a) === normalize(value));
+      input.disabled = true;
+      input.classList.add(ok ? "correct" : "wrong");
+      ["submitBtn", "hintBtn", "giveUpBtn"].forEach((id) => ($(id).disabled = true));
+      $("submitBtn").classList.add("hidden");
+      $("hintBtn").parentElement.classList.add("hidden");
+      finish(ok, `정답은 <strong></strong> 입니다.`, item.answers[0]);
+    }
+
+    function showHint() {
+      const answer = item0Answer();
+      const letters = answer.replace(/\s/g, "");
+      $("hintBox").textContent = `💡 힌트: 첫 글자는 '${letters[0]}', 모두 ${letters.length}글자예요 (띄어쓰기 빼고)`;
+      $("hintBox").classList.remove("hidden");
+    }
+    function item0Answer() { return quiz[current].item.answers[0]; }
+
+    // 정답/오답 공통 처리
+    function finish(ok, wrongHtml, answerText) {
+      answered = true;
+      const { item } = quiz[current];
       const fb = $("feedback");
-      const ok = choice === item.answer;
       if (ok) {
         score++;
         fb.className = "feedback show good";
         fb.innerHTML = `<div class="title">⭕ ${pick(PRAISES)}</div>`;
         celebrate();
       } else {
-        clicked.classList.add("wrong");
         wrongList.push(current);
         fb.className = "feedback show bad";
-        fb.innerHTML = `<div class="title">❌ ${pick(ENCOURAGES)}</div>
-          <div>정답은 <strong>${item.answer}번</strong> 입니다.</div>`;
+        fb.innerHTML = `<div class="title">❌ ${pick(ENCOURAGES)}</div><div>${wrongHtml}</div>`;
+        if (answerText) fb.querySelector("strong").textContent = answerText;
       }
       const ex = document.createElement("div");
       ex.className = "explain";
@@ -476,7 +777,7 @@
       fb.appendChild(ex);
 
       const next = $("nextBtn");
-      next.textContent = current === QUESTIONS.length - 1 ? "결과 보기 🏁" : "다음 문제 ▶";
+      next.textContent = current === quiz.length - 1 ? "결과 보기 🏁" : "다음 문제 ▶";
       next.classList.remove("hidden");
       next.focus({ preventScroll: true });
       fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -484,7 +785,7 @@
 
     function nextQuestion() {
       current++;
-      if (current < QUESTIONS.length) {
+      if (current < quiz.length) {
         renderQuestion();
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
@@ -493,13 +794,17 @@
     }
 
     function showResult() {
-      const total = QUESTIONS.length;
+      const total = quiz.length;
+      $("resultBadge").textContent = `난이도 ${settings.level} · ${TYPE_NAMES[settings.type]}`;
       $("scoreText").textContent = `${total}문제 중 ${score}문제 정답!`;
       let emoji, msg;
-      if (score === total) { emoji = "🏆"; msg = "만점입니다! 오늘 수업 내용을 완벽하게 익히셨어요. 정말 대단하세요!"; }
+      if (score === total) { emoji = "🏆"; msg = "만점입니다! 바이브 코딩 내용을 완벽하게 익히셨어요. 정말 대단하세요!"; }
       else if (score >= total * 0.8) { emoji = "🌟"; msg = "아주 훌륭해요! 거의 다 맞히셨어요. 틀린 문제만 한 번 더 보면 완벽해요."; }
       else if (score >= total * 0.5) { emoji = "👍"; msg = "잘하셨어요! 절반 넘게 맞히셨네요. 아래 문제를 다시 살펴볼까요?"; }
       else { emoji = "🌱"; msg = "수고 많으셨어요! 복습은 지금부터가 시작이에요. 한 번 더 풀어 보면 훨씬 쉬워질 거예요."; }
+      if (score === total && settings.level !== "상") {
+        msg += ` 다음엔 난이도 '${settings.level === "하" ? "중" : "상"}'에 도전해 보세요!`;
+      }
       $("resultEmoji").textContent = emoji;
       $("resultMsg").textContent = msg;
 
@@ -510,7 +815,7 @@
         h.textContent = "📝 다시 보면 좋은 문제";
         review.appendChild(h);
         wrongList.forEach((idx) => {
-          const item = QUESTIONS[idx];
+          const { item } = quiz[idx];
           const div = document.createElement("div");
           div.className = "review-item";
           const q = document.createElement("div");
@@ -518,7 +823,7 @@
           q.textContent = `Q${idx + 1}. ${item.q}`;
           const a = document.createElement("div");
           a.className = "a";
-          a.textContent = `정답: ${item.answer}번 ${item.options[item.answer - 1]}`;
+          a.textContent = `정답: ${item.options[0]}`;
           const e = document.createElement("div");
           e.textContent = "💡 " + item.explain;
           div.append(q, a, e);
@@ -554,9 +859,19 @@
     $("smaller").addEventListener("click", () => { scale = Math.max(0.8, +(scale - 0.1).toFixed(1)); applyScale(); });
     applyScale();
 
+    setupChoiceGroup("levelGroup", "level");
+    setupChoiceGroup("typeGroup", "type");
     $("startBtn").addEventListener("click", startQuiz);
     $("nextBtn").addEventListener("click", nextQuestion);
     $("retryBtn").addEventListener("click", startQuiz);
+    $("homeBtn").addEventListener("click", () => show("startScreen"));
+    $("submitBtn").addEventListener("click", () => submitShort(false));
+    $("giveUpBtn").addEventListener("click", () => submitShort(true));
+    $("hintBtn").addEventListener("click", showHint);
+    // 엔터 키로 정답 확인 (한글 입력 중에는 무시)
+    $("answerInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); submitShort(false); }
+    });
   </script>
 </body>
 </html>
