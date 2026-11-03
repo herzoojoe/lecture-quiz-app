@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>복습 퀴즈</title>
+  <meta name="description" content="강의 내용을 복습하는 객관식 퀴즈 10문제">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fdf8ef;
+      --card: #ffffff;
+      --text: #1f1f1f;
+      --muted: #4a4a4a;
+      --primary: #1d4ed8;
+      --primary-dark: #1e3a8a;
+      --border: #cfc8b8;
+      --correct-bg: #dcfce7;
+      --correct: #166534;
+      --wrong-bg: #fee2e2;
+      --wrong: #991b1b;
+      --focus: #f59e0b;
+      --scale: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { font-size: calc(22px * var(--scale)); }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    /* 상단 바: 제목 + 글자 크기 조절 */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .topbar h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      font-weight: 900;
+    }
+    .size-controls { display: flex; gap: 8px; align-items: center; }
+    .size-controls span { font-size: 0.8rem; color: var(--muted); }
+    .size-btn {
+      min-width: 56px;
+      min-height: 48px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.06);
+    }
+
+    /* 진행 표시 */
+    .progress-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 16px;
+      background: #e8e1d2;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0;
+      transition: width 0.4s;
+    }
+
+    .question {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 0 24px;
+    }
+
+    .options { display: grid; gap: 14px; }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      min-height: 72px;
+      padding: 14px 18px;
+      font: inherit;
+      font-size: 1.1rem;
+      text-align: left;
+      color: var(--text);
+      background: #fff;
+      border: 3px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .option:hover:not(:disabled) { border-color: var(--primary); background: #eff4ff; }
+    .option:focus-visible, .btn:focus-visible, .size-btn:focus-visible {
+      outline: 4px solid var(--focus);
+      outline-offset: 3px;
+    }
+    .option .num {
+      flex: 0 0 auto;
+      width: 48px; height: 48px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: #e8e1d2;
+      font-weight: 900;
+    }
+    .option:disabled { cursor: default; }
+    .option.correct { background: var(--correct-bg); border-color: var(--correct); }
+    .option.correct .num { background: var(--correct); color: #fff; }
+    .option.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+    .option.wrong .num { background: var(--wrong); color: #fff; }
+    .option.dim { opacity: 0.55; }
+
+    /* 정답/오답 안내 */
+    .feedback {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      display: none;
+    }
+    .feedback.show { display: block; animation: pop 0.35s ease-out; }
+    .feedback.good { background: var(--correct-bg); border: 3px solid var(--correct); color: var(--correct); }
+    .feedback.bad  { background: var(--wrong-bg);  border: 3px solid var(--wrong);  color: var(--wrong); }
+    .feedback .title { font-size: 1.4rem; font-weight: 900; margin-bottom: 6px; }
+    .feedback .explain { color: var(--text); margin-top: 8px; }
+
+    @keyframes pop {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      min-height: 72px;
+      margin-top: 24px;
+      font: inherit;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn.secondary { background: #fff; color: var(--primary-dark); border: 3px solid var(--primary); }
+    .hidden { display: none !important; }
+
+    /* 시작/결과 화면 */
+    .center { text-align: center; }
+    .big-emoji { font-size: 4rem; line-height: 1.2; }
+    .intro p { font-size: 1.1rem; }
+    .score {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin: 8px 0;
+    }
+    .result-msg { font-size: 1.25rem; font-weight: 700; }
+
+    .review { margin-top: 28px; text-align: left; }
+    .review h2 { font-size: 1.2rem; }
+    .review-item {
+      border-left: 6px solid var(--wrong);
+      background: #fff7f7;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .review-item .q { font-weight: 700; }
+    .review-item .a { color: var(--correct); font-weight: 700; margin-top: 4px; }
+
+    /* 정답 시 축하 꽃가루 */
+    .confetti {
+      position: fixed;
+      top: -20px;
+      font-size: 1.6rem;
+      pointer-events: none;
+      animation: fall 1.6s linear forwards;
+      z-index: 10;
+    }
+    @keyframes fall {
+      to { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .confetti { display: none; }
+      .feedback.show { animation: none; }
+    }
+
+    @media (max-width: 520px) {
+      html { font-size: calc(19px * var(--scale)); }
+      .card { padding: 22px 16px; }
+      .option { gap: 12px; padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>📚 복습 퀴즈</h1>
+      <div class="size-controls" aria-label="글자 크기 조절">
+        <span>글자 크기</span>
+        <button class="size-btn" id="smaller" aria-label="글자 작게">가−</button>
+        <button class="size-btn" id="bigger" aria-label="글자 크게">가+</button>
+      </div>
+    </div>
+
+    <!-- 시작 화면 -->
+    <section class="card center intro" id="startScreen">
+      <div class="big-emoji">✏️</div>
+      <h2 style="font-size:1.4rem;margin:8px 0 12px">오늘 배운 내용을 복습해 볼까요?</h2>
+      <p>객관식 문제 <strong id="totalCount">10</strong>개가 나옵니다.<br>
+         보기 중 정답이라고 생각하는 것을 <strong>눌러 주세요.</strong></p>
+      <p style="color:var(--muted)">틀려도 괜찮아요. 해설을 보며 다시 익히면 됩니다 😊</p>
+      <button class="btn" id="startBtn">퀴즈 시작하기</button>
+    </section>
+
+    <!-- 문제 화면 -->
+    <section class="card hidden" id="quizScreen" aria-live="polite">
+      <div class="progress-text" id="progressText"></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="question" id="questionText"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback" role="status"></div>
+      <button class="btn hidden" id="nextBtn">다음 문제 ▶</button>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section class="card center hidden" id="resultScreen">
+      <div class="big-emoji" id="resultEmoji">🏆</div>
+      <div class="score" id="scoreText"></div>
+      <p class="result-msg" id="resultMsg"></p>
+      <div class="review" id="review"></div>
+      <button class="btn" id="retryBtn">처음부터 다시 풀기</button>
+    </section>
+  </div>
+
+  <script>
+    /* ================================================================
+       ✍️ 문제를 바꾸고 싶으면 이 부분만 고치면 됩니다.
+       - q       : 문제
+       - options : 보기 4개
+       - answer  : 정답 보기 번호 (첫 번째 보기가 1)
+       - explain : 해설 (정답/오답 후에 보여 줌)
+       ================================================================ */
+    const QUESTIONS = [
+      {
+        q: "ChatGPT, Claude 같은 '생성형 AI'가 하는 일로 가장 알맞은 것은?",
+        options: [
+          "인터넷 속도를 빠르게 해 준다",
+          "질문에 맞춰 글·그림 같은 새 결과물을 만들어 준다",
+          "컴퓨터 바이러스를 자동으로 지운다",
+          "휴대폰 배터리를 오래 가게 한다"
+        ],
+        answer: 2,
+        explain: "생성형 AI는 이름 그대로 글, 그림, 요약 같은 새로운 결과물을 '생성'해 주는 AI입니다."
+      },
+      {
+        q: "AI에게 일을 시킬 때 입력하는 '지시문'을 무엇이라고 부를까요?",
+        options: ["프롬프트", "다운로드", "업데이트", "로그아웃"],
+        answer: 1,
+        explain: "AI에게 건네는 요청 문장을 '프롬프트'라고 합니다. 식당에서 주문서를 쓰는 것과 비슷해요."
+      },
+      {
+        q: "AI에게서 더 좋은 답을 얻는 방법으로 가장 알맞은 것은?",
+        options: [
+          "한 단어만 짧게 입력한다",
+          "목적·대상·원하는 형식을 구체적으로 알려 준다",
+          "같은 질문을 아주 빠르게 여러 번 입력한다",
+          "일부러 맞춤법을 틀리게 쓴다"
+        ],
+        answer: 2,
+        explain: "'누구에게, 무엇을, 어떤 모양으로' 원하는지 구체적으로 말할수록 AI의 답이 좋아집니다."
+      },
+      {
+        q: "AI가 사실이 아닌 내용을 그럴듯하게 지어내는 현상을 무엇이라고 할까요?",
+        options: ["버퍼링", "할루시네이션(환각)", "백업", "스트리밍"],
+        answer: 2,
+        explain: "AI가 모르는 것을 아는 척 지어내는 것을 '할루시네이션'이라고 합니다. 중요한 내용은 꼭 확인하세요."
+      },
+      {
+        q: "AI가 알려 준 건강·법률·돈 관련 정보는 어떻게 하는 것이 좋을까요?",
+        options: [
+          "AI가 말했으니 그대로 믿는다",
+          "공식 기관이나 전문가를 통해 한 번 더 확인한다",
+          "친구에게 바로 전달한다",
+          "무조건 무시한다"
+        ],
+        answer: 2,
+        explain: "AI는 똑똑한 비서지만 틀릴 수 있어요. 중요한 결정은 공식 자료나 전문가로 꼭 확인합니다."
+      },
+      {
+        q: "AI에게 입력하면 안 되는 정보는 무엇일까요?",
+        options: [
+          "오늘 날씨에 대한 질문",
+          "좋아하는 음식 레시피 질문",
+          "주민등록번호·계좌 비밀번호",
+          "여행지 추천 요청"
+        ],
+        answer: 3,
+        explain: "주민등록번호, 비밀번호, 계좌번호 같은 개인정보는 AI에 입력하지 않는 것이 안전합니다."
+      },
+      {
+        q: "AI의 첫 답변이 마음에 들지 않을 때 가장 좋은 방법은?",
+        options: [
+          "프로그램을 지우고 다시 설치한다",
+          "\"더 쉽게\", \"3줄로 줄여 줘\"처럼 고쳐 달라고 다시 요청한다",
+          "컴퓨터를 껐다 켠다",
+          "AI는 원래 안 된다고 포기한다"
+        ],
+        answer: 2,
+        explain: "AI와는 대화하듯 주고받을 수 있어요. 원하는 방향을 말하면 답을 계속 다듬어 줍니다."
+      },
+      {
+        q: "'바이브 코딩'에 대한 설명으로 가장 알맞은 것은?",
+        options: [
+          "음악을 들으면서 타자 연습을 하는 것",
+          "원하는 것을 말로 설명하면 AI가 코드를 대신 작성해 주는 방식",
+          "휴대폰 진동(바이브) 설정을 바꾸는 것",
+          "종이에 손으로 코드를 적는 것"
+        ],
+        answer: 2,
+        explain: "바이브 코딩은 '이런 걸 만들어 줘'라고 말로 설명하면 AI가 코드를 짜 주는 새로운 개발 방식입니다."
+      },
+      {
+        q: "AI에게 '역할'을 정해 주는 예시로 알맞은 것은?",
+        options: [
+          "\"너는 친절한 초등학교 선생님이야. 아이에게 설명하듯 알려 줘.\"",
+          "\"빨리\"",
+          "\"ㅋㅋㅋ\"",
+          "\"아무거나\""
+        ],
+        answer: 1,
+        explain: "\"너는 ○○ 전문가야\"처럼 역할을 정해 주면 AI가 그 사람의 말투와 수준에 맞춰 답해 줍니다."
+      },
+      {
+        q: "AI가 만든 글이나 그림을 사용할 때의 올바른 태도는?",
+        options: [
+          "내가 직접 만든 것이라고 말한다",
+          "내용을 확인하고, 필요하면 AI를 활용했다고 밝힌다",
+          "확인 없이 바로 인터넷에 올린다",
+          "다른 사람의 이름을 붙인다"
+        ],
+        answer: 2,
+        explain: "AI 결과물은 내용을 꼭 확인하고, 필요한 경우 AI 도움을 받았다고 밝히는 것이 바른 사용법입니다."
+      }
+    ];
+
+    // 정답일 때 무작위로 보여 줄 칭찬 메시지
+    const PRAISES = [
+      "정답입니다! 정말 잘하셨어요 👏",
+      "훌륭해요! 완벽하게 기억하고 계시네요 🌟",
+      "딩동댕! 역시 대단하세요 🎉",
+      "맞았어요! 수업을 꼼꼼히 들으셨군요 👍",
+      "최고예요! 이 기세로 계속 가 볼까요? 💪",
+      "정답! 박수를 보내 드립니다 👏👏",
+      "멋져요! 실력이 쑥쑥 늘고 있어요 🌱"
+    ];
+
+    // 틀렸을 때 보여 줄 격려 메시지
+    const ENCOURAGES = [
+      "아쉬워요! 괜찮아요, 해설을 함께 볼까요?",
+      "조금 헷갈리셨죠? 다음엔 꼭 맞히실 거예요!",
+      "틀려도 괜찮아요. 이렇게 복습하는 거예요 😊"
+    ];
+
+    /* ===================== 아래는 동작 코드 ===================== */
+    const $ = (id) => document.getElementById(id);
+    let current = 0;
+    let score = 0;
+    let wrongList = [];
+
+    $("totalCount").textContent = QUESTIONS.length;
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function show(screen) {
+      ["startScreen", "quizScreen", "resultScreen"].forEach((id) =>
+        $(id).classList.toggle("hidden", id !== screen)
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startQuiz() {
+      current = 0; score = 0; wrongList = [];
+      show("quizScreen");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const item = QUESTIONS[current];
+      $("progressText").textContent = `${current + 1}번 문제 / 전체 ${QUESTIONS.length}문제`;
+      $("progressFill").style.width = `${(current / QUESTIONS.length) * 100}%`;
+      $("questionText").textContent = `Q${current + 1}. ${item.q}`;
+
+      const box = $("options");
+      box.innerHTML = "";
+      item.options.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.innerHTML = `<span class="num">${i + 1}</span><span></span>`;
+        btn.lastChild.textContent = text;
+        btn.addEventListener("click", () => choose(i + 1, btn));
+        box.appendChild(btn);
+      });
+
+      const fb = $("feedback");
+      fb.className = "feedback";
+      fb.innerHTML = "";
+      $("nextBtn").classList.add("hidden");
+    }
+
+    function choose(choice, clicked) {
+      const item = QUESTIONS[current];
+      const buttons = [...$("options").children];
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i + 1 === item.answer) b.classList.add("correct");
+        else if (b !== clicked) b.classList.add("dim");
+      });
+
+      const fb = $("feedback");
+      const ok = choice === item.answer;
+      if (ok) {
+        score++;
+        fb.className = "feedback show good";
+        fb.innerHTML = `<div class="title">⭕ ${pick(PRAISES)}</div>`;
+        celebrate();
+      } else {
+        clicked.classList.add("wrong");
+        wrongList.push(current);
+        fb.className = "feedback show bad";
+        fb.innerHTML = `<div class="title">❌ ${pick(ENCOURAGES)}</div>
+          <div>정답은 <strong>${item.answer}번</strong> 입니다.</div>`;
+      }
+      const ex = document.createElement("div");
+      ex.className = "explain";
+      ex.textContent = "💡 " + item.explain;
+      fb.appendChild(ex);
+
+      const next = $("nextBtn");
+      next.textContent = current === QUESTIONS.length - 1 ? "결과 보기 🏁" : "다음 문제 ▶";
+      next.classList.remove("hidden");
+      next.focus({ preventScroll: true });
+      fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < QUESTIONS.length) {
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const total = QUESTIONS.length;
+      $("scoreText").textContent = `${total}문제 중 ${score}문제 정답!`;
+      let emoji, msg;
+      if (score === total) { emoji = "🏆"; msg = "만점입니다! 오늘 수업 내용을 완벽하게 익히셨어요. 정말 대단하세요!"; }
+      else if (score >= total * 0.8) { emoji = "🌟"; msg = "아주 훌륭해요! 거의 다 맞히셨어요. 틀린 문제만 한 번 더 보면 완벽해요."; }
+      else if (score >= total * 0.5) { emoji = "👍"; msg = "잘하셨어요! 절반 넘게 맞히셨네요. 아래 문제를 다시 살펴볼까요?"; }
+      else { emoji = "🌱"; msg = "수고 많으셨어요! 복습은 지금부터가 시작이에요. 한 번 더 풀어 보면 훨씬 쉬워질 거예요."; }
+      $("resultEmoji").textContent = emoji;
+      $("resultMsg").textContent = msg;
+
+      const review = $("review");
+      review.innerHTML = "";
+      if (wrongList.length) {
+        const h = document.createElement("h2");
+        h.textContent = "📝 다시 보면 좋은 문제";
+        review.appendChild(h);
+        wrongList.forEach((idx) => {
+          const item = QUESTIONS[idx];
+          const div = document.createElement("div");
+          div.className = "review-item";
+          const q = document.createElement("div");
+          q.className = "q";
+          q.textContent = `Q${idx + 1}. ${item.q}`;
+          const a = document.createElement("div");
+          a.className = "a";
+          a.textContent = `정답: ${item.answer}번 ${item.options[item.answer - 1]}`;
+          const e = document.createElement("div");
+          e.textContent = "💡 " + item.explain;
+          div.append(q, a, e);
+          review.appendChild(div);
+        });
+      }
+      show("resultScreen");
+      if (score === total) { celebrate(); setTimeout(celebrate, 600); }
+    }
+
+    function celebrate() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const pieces = ["🎉", "⭐", "👏", "✨", "🌸"];
+      for (let i = 0; i < 18; i++) {
+        const s = document.createElement("span");
+        s.className = "confetti";
+        s.textContent = pick(pieces);
+        s.style.left = Math.random() * 100 + "vw";
+        s.style.animationDelay = Math.random() * 0.4 + "s";
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 2200);
+      }
+    }
+
+    // 글자 크기 조절 (선택한 크기는 이 기기에 기억됨)
+    let scale = 1;
+    try { scale = parseFloat(localStorage.getItem("quizScale")) || 1; } catch (e) {}
+    function applyScale() {
+      document.documentElement.style.setProperty("--scale", scale);
+      try { localStorage.setItem("quizScale", scale); } catch (e) {}
+    }
+    $("bigger").addEventListener("click", () => { scale = Math.min(1.5, +(scale + 0.1).toFixed(1)); applyScale(); });
+    $("smaller").addEventListener("click", () => { scale = Math.max(0.8, +(scale - 0.1).toFixed(1)); applyScale(); });
+    applyScale();
+
+    $("startBtn").addEventListener("click", startQuiz);
+    $("nextBtn").addEventListener("click", nextQuestion);
+    $("retryBtn").addEventListener("click", startQuiz);
+  </script>
+</body>
+</html>
